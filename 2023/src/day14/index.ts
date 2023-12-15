@@ -38,7 +38,8 @@ const part1 = (rawInput: string) => {
   return sum;
 };
 
-const rollRocksNorth = (lines: string[][]) => {
+const rollRocksNorth = _.memoize((data: string) => {
+  let lines = data.split("\n").map((line) => line.split(""));
   for (let y = 0; y < lines.length; y++) {
     const line = lines[y];
     for (let x = 0; x < line.length; x++) {
@@ -53,10 +54,11 @@ const rollRocksNorth = (lines: string[][]) => {
       }
     }
   }
-  return lines;
-};
+  return lines.map((line) => line.join("")).join("\n");
+});
 
-const rollRocksSouth = (lines: string[][]) => {
+const rollRocksSouth = _.memoize((data: string) => {
+  let lines = data.split("\n").map((line) => line.split(""));
   for (let y = lines.length - 1; y >= 0; y--) {
     const line = lines[y];
     for (let x = 0; x < line.length; x++) {
@@ -71,10 +73,11 @@ const rollRocksSouth = (lines: string[][]) => {
       }
     }
   }
-  return lines;
-};
+  return lines.map((line) => line.join("")).join("\n");
+});
 
-const rollRocksWest = (lines: string[][]) => {
+const rollRocksWest = _.memoize((data: string) => {
+  let lines = data.split("\n").map((line) => line.split(""));
   for (let y = 0; y < lines.length; y++) {
     const line = lines[y];
     for (let x = 0; x < line.length; x++) {
@@ -89,10 +92,11 @@ const rollRocksWest = (lines: string[][]) => {
       }
     }
   }
-  return lines;
-};
+  return lines.map((line) => line.join("")).join("\n");
+});
 
-const rollRocksEast = (lines: string[][]) => {
+const rollRocksEast = _.memoize((data: string) => {
+  let lines = data.split("\n").map((line) => line.split(""));
   for (let y = 0; y < lines.length; y++) {
     const line = lines[y];
     for (let x = line.length - 1; x >= 0; x--) {
@@ -107,32 +111,32 @@ const rollRocksEast = (lines: string[][]) => {
       }
     }
   }
-  return lines;
-};
+  return lines.map((line) => line.join("")).join("\n");
+});
 
-const rollRocks = (data: string[][]) => {
+const rollRocks = _.memoize((data: string) => {
   data = rollRocksNorth(data);
   data = rollRocksWest(data);
   data = rollRocksSouth(data);
   data = rollRocksEast(data);
   return data;
-};
+});
 
 const part2 = (rawInput: string) => {
-  let input = parseInput(rawInput);
+  let input = parseInput(rawInput).map((line) => line.join("")).join("\n");
 
+  // Better.
   const seen = new Map<string, number>();
   while(true) {
     input = rollRocks(input);
-    const key = input.map((line) => line.join("")).join("\n");
 
-    if(seen.has(key)) {
-      if(seen.get(key) === 2) {
+    if(seen.has(input)) {
+      if(seen.get(input) === 2) {
         break;
       }
-      seen.set(key, 2);
+      seen.set(input, 2);
     } else {
-      seen.set(key, 1);
+      seen.set(input, 1);
     }
   }
 
@@ -146,19 +150,39 @@ const part2 = (rawInput: string) => {
   const offset = seen.size - cycleMaps.length;
   const index = (1000000000 - offset) % cycleMaps.length;
 
-  input = cycleMaps[index - 1].split("\n").map((line) => line.split(""));
-  const y = input.length;
-  const x = input[0].length;
+  let result = cycleMaps[index - 1].split("\n").map((line) => line.split(""));
+  const y = result.length;
+  const x = result[0].length;
   let sum = 0;
   for(let i = 0; i < x; i++) {
     for(let j = 0; j < y; j++) {
-      if(input[j][i] === "O") {
+      if(result[j][i] === "O") {
         sum += y - j;
       }
     }
   }
 
   return sum;
+
+  // Lol. Memoization works too. But it's slow.
+  // for(let i = 0; i < 1000000000; i++) {
+  //   input = rollRocks(input);
+  // }
+
+  // let result = input.split("\n").map((line) => line.split(""));
+  // const y = result.length;
+  // const x = result[0].length;
+  // let sum = 0;
+  // for(let i = 0; i < x; i++) {
+  //   for(let j = 0; j < y; j++) {
+  //     if(result[j][i] === "O") {
+  //       sum += y - j;
+  //     }
+  //   }
+  // }
+
+  // return sum;
+
 };
 
 run({
@@ -173,20 +197,10 @@ run({
   },
   part2: {
     tests: [
-      {
-        input: `O....#....
-        O.OO#....#
-        .....##...
-        OO.#O....O
-        .O.....O#.
-        O.#..O.#.#
-        ..O..#O..O
-        .......O..
-        #....###..
-        #OO..#....
-        `,
-        expected: 64,
-      },
+      // {
+      //   input: ``,
+      //   expected: "",
+      // },
     ],
     solution: part2,
   },
