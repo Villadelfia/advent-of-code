@@ -1,5 +1,5 @@
 import run from "aocrunner";
-import { ICompare, PriorityQueue } from "@datastructures-js/priority-queue";
+import { MinPriorityQueue } from "@datastructures-js/priority-queue";
 
 type Grid = number[][];
 const parseInput = (rawInput: string): Grid => rawInput.split("\n").map((line) => line.trim().split("").map(Number));
@@ -13,12 +13,8 @@ type Queued = [
   steps: number
 ];
 
-const compareQueued: ICompare<Queued> = (a: Queued, b: Queued) => {
-  return a[0]-b[0];
-}
-
 const minimalHeatLossNormal = (grid: Grid): number => {
-  const queue = new PriorityQueue<Queued>(compareQueued);
+  const queue = new MinPriorityQueue<Queued>((q) => q[0]);
   queue.push([0, 0, 0, 0, 0, 0]);
   const seen = new Set<string>();
 
@@ -55,7 +51,7 @@ const minimalHeatLossNormal = (grid: Grid): number => {
 };
 
 const minimalHeatLossUltra = (grid: Grid): number => {
-  const queue = new PriorityQueue<Queued>(compareQueued);
+  const queue = new MinPriorityQueue<Queued>((q) => q[0]);
   queue.push([0, 0, 0, 0, 0, 0]);
   const seen = new Set<string>();
 
